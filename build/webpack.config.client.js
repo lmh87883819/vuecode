@@ -24,6 +24,8 @@ const defaultPlugins = [
     new HTMLPlugin()
 ]
 
+let config
+
 if (isDev) {
     config = merge(baseConfig, {
         devtool: '#cheap-module-eval-source-map',
@@ -31,8 +33,15 @@ if (isDev) {
             rules: [{
                 test: /\.styl/,
                 use: [
-                    'style-loader',
+                    'vue-style-loader',
                     'css-loader',
+                    // {
+                    //     loader:'css-loader',
+                    //     options:{
+                    //         module:true,
+                    //         localIdentName: isDev ? '[path]-[name]-[hash:base64:5]' : '[hash:base64:5]',
+                    //     }
+                    // },
                     {
                         loader: 'postcss-loader',
                         options: {
@@ -46,14 +55,14 @@ if (isDev) {
         devServer,
         plugins: defaultPlugins.concat([
             new webpack.HotModuleReplacementPlugin(),
-            new webpack.NoEmitOnErrorsPlugin()
+            // new webpack.NoEmitOnErrorsPlugin()
         ])
     })
 } else {
     config = merge(baseConfig, {
         entry: {
-            app: path.join(__dirname, '../src/index.js'),
-            vendor: ['vue']
+            app: path.join(__dirname, '../client/index.js'),
+            // vendor: ['vue']
         },
         output: {
             filename: '[name].[chunkhash:8].js'
@@ -62,7 +71,7 @@ if (isDev) {
             rules: [{
                 test: /\.styl/,
                 use: ExtractPlugin.extract({
-                    fallback: 'style-loader',
+                    fallback: 'vue-style-loader',
                     use: [
                         'css-loader',
                         {
@@ -76,14 +85,20 @@ if (isDev) {
                 })
             }]
         },
+        optimization: {
+            splitChunks: {
+                chunks: 'all'
+            },
+            runtimeChunk: true,
+        },
         plugins: defaultPlugins.concat([
             new ExtractPlugin('styles.[contentHash:8].css'),
-            new webpack.optimize.CommonsChunkPlugin({
-                name: 'vendor'
-            }),
-            new webpack.optimize.CommonsChunkPlugin({
-                name: 'runtime'
-            })
+            // new webpack.optimize.CommonsChunkPlugin({
+            //     name: 'vendor'
+            // }),
+            // new webpack.optimize.CommonsChunkPlugin({
+            //     name: 'runtime'
+            // })
         ])
     })
 }
