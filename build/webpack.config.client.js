@@ -31,7 +31,7 @@ if (isDev) {
         devtool: '#cheap-module-eval-source-map',
         module: {
             rules: [{
-                test: /\.styl/,
+                test: /\.styl$/,
                 use: [
                     'vue-style-loader',
                     'css-loader',
@@ -55,21 +55,21 @@ if (isDev) {
         devServer,
         plugins: defaultPlugins.concat([
             new webpack.HotModuleReplacementPlugin(),
-            // new webpack.NoEmitOnErrorsPlugin()
+            new webpack.NoEmitOnErrorsPlugin()
         ])
     })
 } else {
     config = merge(baseConfig, {
         entry: {
             app: path.join(__dirname, '../client/index.js'),
-            // vendor: ['vue']
+            vendor: ['vue']
         },
         output: {
             filename: '[name].[chunkhash:8].js'
         },
         module: {
             rules: [{
-                test: /\.styl/,
+                test: /\.styl$/,
                 use: ExtractPlugin.extract({
                     fallback: 'vue-style-loader',
                     use: [
@@ -85,20 +85,20 @@ if (isDev) {
                 })
             }]
         },
-        optimization: {
-            splitChunks: {
-                chunks: 'all'
-            },
-            runtimeChunk: true,
-        },
+        // optimization: {
+        //     splitChunks: {
+        //         chunks: 'all'
+        //     },
+        //     runtimeChunk: true,
+        // },
         plugins: defaultPlugins.concat([
             new ExtractPlugin('styles.[contentHash:8].css'),
-            // new webpack.optimize.CommonsChunkPlugin({
-            //     name: 'vendor'
-            // }),
-            // new webpack.optimize.CommonsChunkPlugin({
-            //     name: 'runtime'
-            // })
+            new webpack.optimize.CommonsChunkPlugin({
+                name: 'vendor'
+            }),
+            new webpack.optimize.CommonsChunkPlugin({
+                name: 'runtime'
+            })
         ])
     })
 }
